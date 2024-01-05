@@ -4,7 +4,6 @@ from parse_config import ConfigParser
 import data_loader as module_data
 import model as module_arch
 
-import torchvision
 from trainer import Trainer
 import torch
 
@@ -27,7 +26,6 @@ def main(config):
         num_epochs, train_data_loader, optimizer, model, device, save_path
     )
     trainer.train_fn()
-
 
 if __name__ == "__main__":
     args = argparse.ArgumentParser(description="Practical Pytorch")

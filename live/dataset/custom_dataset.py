@@ -15,7 +15,7 @@ class CustomDataset(Dataset):
     transforms: data transform (resize, crop, Totensor, etc,,,)
     """
 
-    def __init__(self, annotation, data_dir):
+    def __init__(self, annotation, data_dir, resize):
         super().__init__()
         self.data_dir = data_dir
         # coco annotation 불러오기 (coco API)
@@ -26,7 +26,7 @@ class CustomDataset(Dataset):
             "annotations": None,
         }
         self.transforms = A.Compose(
-            [A.Resize(1024, 1024), A.Flip(p=0.5), ToTensorV2(p=1.0)],
+            [A.Resize(resize, resize), A.Flip(p=0.5), ToTensorV2(p=1.0)],
             bbox_params={"format": "pascal_voc", "label_fields": ["labels"]},
         )
 

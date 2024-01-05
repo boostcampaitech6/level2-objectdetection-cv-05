@@ -117,6 +117,7 @@ model/checkpoint_transform.py
 k_fold_train_mj.py
 dataset/
 checkpoints/
+submit/
 
 # editor, os cache directory
 .vscode/

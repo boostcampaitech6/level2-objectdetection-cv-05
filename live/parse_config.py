@@ -76,7 +76,6 @@ class ConfigParser:
         logger.setLevel(self.log_levels[verbosity])
         return logger
 
-
 def _get_opt_name(flags):
     for flg in flags:
         if flg.startswith("--"):
