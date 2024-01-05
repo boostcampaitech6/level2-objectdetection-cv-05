@@ -5,7 +5,7 @@
             "num_classes": 11
         }
     },
-    "data_loader": { 
+    "data_loader": {
         "type": "CustomDataLoader",
         "args":{
             "batch_size": 3,
