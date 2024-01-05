@@ -8,8 +8,7 @@ assignees: ''
 ---
 
 ## Background
-- 
+-
 
 ## To Do
 - [ ]
-
