@@ -115,6 +115,8 @@ inference_train.sh
 model/pretrained/
 model/checkpoint_transform.py
 k_fold_train_mj.py
+dataset/
+checkpoints/
 
 # editor, os cache directory
 .vscode/
