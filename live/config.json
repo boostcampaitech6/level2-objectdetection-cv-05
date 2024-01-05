@@ -1,0 +1,27 @@
+{
+    "arch": {
+        "type": "CustomModel",
+        "args": {
+            "num_classes": 11
+        }
+    },
+    "data_loader": { 
+        "type": "CustomDataLoader",
+        "args":{
+            "batch_size": 3,
+            "shuffle": false,
+            "num_workers": 2
+        }
+    },
+    "dataset": {
+        "type": "CustomDataset",
+        "args":{
+            "annotation" : "../dataset/train.json",
+            "data_dir" : "../dataset"
+        }
+    },
+    "trainer": {
+        "epochs": 2,
+        "save_path": "./checkpoints/faster_rcnn_torchvision_checkpoints.pth"
+    }
+}
