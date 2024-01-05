@@ -27,6 +27,7 @@ def main(config):
     )
     trainer.train_fn()
 
+
 if __name__ == "__main__":
     args = argparse.ArgumentParser(description="Practical Pytorch")
     args.add_argument(

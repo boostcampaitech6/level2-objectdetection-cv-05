@@ -14,7 +14,7 @@ class CustomModel(nn.Module):
         self.model.roi_heads.box_predictor = FastRCNNPredictor(in_features, num_classes)
 
     def forward(self, images, targets=None):
-        if(targets == None):
+        if targets == None:
             return self.model(images)
         else:
             return self.model(images, targets)
