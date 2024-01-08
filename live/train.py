@@ -18,7 +18,9 @@ def main(config):
     optimizer = torch.optim.SGD(params, lr=0.005, momentum=0.9, weight_decay=0.0005)
 
     # training
-    trainer = config.init_trainer("trainer", module_trainer, optimizer, device, train_data_loader, model)
+    trainer = config.init_trainer(
+        "trainer", module_trainer, optimizer, device, train_data_loader, model
+    )
     trainer.train_fn()
 
 
