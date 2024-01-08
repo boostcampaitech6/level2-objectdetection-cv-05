@@ -107,7 +107,6 @@ ENV/
 data/
 input/
 saved/
-datasets/
 v3/train.sh
 v3/wandb
 sweep.yaml
