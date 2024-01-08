@@ -3,8 +3,7 @@ import collections
 from parse_config import ConfigParser
 import data_loader as module_data
 import model as module_arch
-
-from trainer import Trainer
+import trainer as module_trainer
 import torch
 
 
@@ -16,15 +15,10 @@ def main(config):
     model = config.init_obj("arch", module_arch)
     model.to(device)
     params = [p for p in model.parameters() if p.requires_grad]
-
     optimizer = torch.optim.SGD(params, lr=0.005, momentum=0.9, weight_decay=0.0005)
-    num_epochs = config["trainer"]["epochs"]
-    save_path = config["trainer"]["save_path"]
 
     # training
-    trainer = Trainer(
-        num_epochs, train_data_loader, optimizer, model, device, save_path
-    )
+    trainer = config.init_trainer("trainer", module_trainer, optimizer, device, train_data_loader, model)
     trainer.train_fn()
 
 

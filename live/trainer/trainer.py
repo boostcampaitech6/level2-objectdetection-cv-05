@@ -4,11 +4,11 @@ from tqdm import tqdm
 from utils.util import Averager
 
 
-class Trainer:
+class CustomTrainer:
     def __init__(
-        self, num_epochs, train_data_loader, optimizer, model, device, save_path
+        self, epochs, save_path, train_data_loader, optimizer, model, device
     ) -> None:
-        self.num_epochs = num_epochs
+        self.num_epochs = epochs
         self.train_data_loader = train_data_loader
         self.optimizer = optimizer
         self.model = model

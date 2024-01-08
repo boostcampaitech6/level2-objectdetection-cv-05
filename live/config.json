@@ -22,7 +22,10 @@
         }
     },
     "trainer": {
-        "epochs": 2,
-        "save_path": "./checkpoints/faster_rcnn_torchvision_checkpoints.pth"
+        "type": "CustomTrainer",
+        "args":{
+            "epochs": 2,
+            "save_path": "./checkpoints/faster_rcnn_torchvision_checkpoints.pth"
+        }
     }
 }

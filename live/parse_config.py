@@ -63,6 +63,19 @@ class ConfigParser:
         module_args.update(self[name]["args"])
 
         return getattr(module, module_name)(*args, **module_args)
+    
+    def init_trainer(self, name, module, optimizer, device, train_data_loader, model):
+        module_name = self[name]["type"]
+        module_args = dict(self[name]["args"]) # config.json에서 받기
+        
+        args = {
+                "optimizer" : optimizer,
+                "device" : device,
+                "train_data_loader": train_data_loader,
+                "model" : model
+            }
+        module_args.update(args)    
+        return getattr(module, module_name)(**module_args)
 
     def __getitem__(self, name):
         return self.config[name]
