@@ -8,4 +8,5 @@ lr_config = dict(
     warmup_iters=500,
     warmup_ratio=0.001,
     step=[8, 11])
-runner = dict(type='EpochBasedRunnerAmp', max_epochs=12)
+# runner = dict(type='EpochBasedRunnerAmp', max_epochs=12) # 버전 안맞아 아래로 수정
+runner = dict(type='EpochBasedRunner', max_epochs=12)
