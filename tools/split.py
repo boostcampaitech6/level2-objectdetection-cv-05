@@ -3,8 +3,8 @@ import numpy as np
 import os
 from sklearn.model_selection import StratifiedGroupKFold
 
-annotation = "../dataset/train.json"
-output_dir = '../dataset/json_folder'
+annotation = "dataset/cleansing.json"
+output_dir = 'dataset/json_folder'
 
 with open(annotation) as f:
     data = json.load(f)
@@ -18,13 +18,13 @@ cv = StratifiedGroupKFold(n_splits=5, shuffle=True, random_state=207)
 
 for i,(train_idx, val_idx) in enumerate(cv.split(X, y, groups), start = 1) :
     train_data_img_ids = set([data['annotations'][idx]['image_id'] for idx in train_idx])
-    train_data_imgs = [data['images'][idx] for idx in train_data_img_ids]
+    train_data_imgs = [img for img in data['images'] for img_id in train_data_img_ids if img['id'] == img_id]
     train_data = {'images' : train_data_imgs,
                  'categories' : data['categories'],
                  'annotations': [data['annotations'][idx] for idx in train_idx],}
     
     val_data_img_ids = set([data['annotations'][idx]['image_id'] for idx in val_idx])
-    val_data_imgs = [data['images'][idx] for idx in val_data_img_ids]
+    val_data_imgs = [img for img in data['images'] for img_id in val_data_img_ids if img['id'] == img_id]
     val_data = {'images' : val_data_imgs,
                 'categories' : data['categories'],
                'annotations': [data['annotations'][idx] for idx in val_idx],}
