@@ -118,6 +118,7 @@ k_fold_train_mj.py
 dataset/
 checkpoints/
 submit/
+!live/dataset
 
 # editor, os cache directory
 .vscode/
