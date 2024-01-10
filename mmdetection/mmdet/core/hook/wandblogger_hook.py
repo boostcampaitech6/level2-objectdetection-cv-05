@@ -376,6 +376,7 @@ class MMDetWandbHook(WandbLoggerHook):
             wandb_boxes = self._get_wandb_bboxes(bboxes, labels)
 
             # Get dict of masks to be logged.
+            masks = None if set(masks) == {None} else masks     # 👈 fix: checking masks on MMDetWandbHook / https://github.com/open-mmlab/mmdetection/pull/9394
             if masks is not None:
                 wandb_masks = self._get_wandb_masks(
                     masks,

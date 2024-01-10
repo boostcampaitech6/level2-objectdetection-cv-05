@@ -107,16 +107,17 @@ ENV/
 data/
 input/
 saved/
-v3/train.sh
-v3/wandb
+model/pretrained
+mmdetection/artifacts
+
+# scripts
 sweep.yaml
 sweep.out
 train.sh
 inference.sh
 inference_train.sh
-model/pretrained/
-model/checkpoint_transform.py
-k_fold_train_mj.py
+mmdetection/faster_rcnn_inference.ipynb
+tools/ensemble.sh
 
 # editor, os cache directory
 .vscode/
