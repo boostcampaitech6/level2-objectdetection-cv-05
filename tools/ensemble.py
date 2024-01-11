@@ -80,6 +80,7 @@ def main(config):
         submission = pd.DataFrame()
         submission['PredictionString'] = prediction_strings
         submission['image_id'] = file_names
+        os.makedirs(f'{config.submissions_dir}/ensemble', exist_ok=True)
         submission.to_csv(f'{config.submissions_dir}/ensemble/submission_{config.ensemble}_{config.iou_thr}_ensemble.csv', index=None)
 
         submission.head()
