@@ -13,14 +13,15 @@ from mmcv.parallel import collate, scatter
 from mmcv.runner import load_checkpoint
 
 try:
-    from pytorch_grad_cam import (AblationCAM, AblationLayer,
-                                  ActivationsAndGradients)
+    from pytorch_grad_cam import AblationCAM, AblationLayer, ActivationsAndGradients
     from pytorch_grad_cam.base_cam import BaseCAM
     from pytorch_grad_cam.utils.image import scale_cam_image, show_cam_on_image
     from pytorch_grad_cam.utils.svd_on_activations import get_2d_projection
 except ImportError:
-    raise ImportError('Please run `pip install "grad-cam"` to install '
-                      '3rd party package pytorch_grad_cam.')
+    raise ImportError(
+        'Please run `pip install "grad-cam"` to install '
+        "3rd party package pytorch_grad_cam."
+    )
 
 from mmdet.core import get_classes
 from mmdet.datasets import replace_ImageToTensor
@@ -42,8 +43,10 @@ def reshape_transform(feats, max_shape=(20, 20), is_need_grad=False):
         feats = [feats]
     else:
         if is_need_grad:
-            raise NotImplementedError('The `grad_base` method does not '
-                                      'support output multi-activation layers')
+            raise NotImplementedError(
+                "The `grad_base` method does not "
+                "support output multi-activation layers"
+            )
 
     max_h = max([im.shape[-2] for im in feats])
     max_w = max([im.shape[-1] for im in feats])
@@ -55,8 +58,8 @@ def reshape_transform(feats, max_shape=(20, 20), is_need_grad=False):
     activations = []
     for feat in feats:
         activations.append(
-            torch.nn.functional.interpolate(
-                torch.abs(feat), max_shape, mode='bilinear'))
+            torch.nn.functional.interpolate(torch.abs(feat), max_shape, mode="bilinear")
+        )
 
     activations = torch.cat(activations, axis=1)
     return activations
@@ -66,7 +69,7 @@ class DetCAMModel(nn.Module):
     """Wrap the mmdet model class to facilitate handling of non-tensor
     situations during inference."""
 
-    def __init__(self, cfg, checkpoint, score_thr, device='cuda:0'):
+    def __init__(self, cfg, checkpoint, score_thr, device="cuda:0"):
         super().__init__()
         self.cfg = cfg
         self.device = device
@@ -82,22 +85,33 @@ class DetCAMModel(nn.Module):
         cfg = copy.deepcopy(self.cfg)
 
         detector = build_detector(
-            cfg.model,
-            train_cfg=cfg.get('train_cfg'),
-            test_cfg=cfg.get('test_cfg'))
+            cfg.model, train_cfg=cfg.get("train_cfg"), test_cfg=cfg.get("test_cfg")
+        )
 
         if self.checkpoint is not None:
-            checkpoint = load_checkpoint(
-                detector, self.checkpoint, map_location='cpu')
-            if 'CLASSES' in checkpoint.get('meta', {}):
-                detector.CLASSES = checkpoint['meta']['CLASSES']
+            checkpoint = load_checkpoint(detector, self.checkpoint, map_location="cpu")
+            if "CLASSES" in checkpoint.get("meta", {}):
+                detector.CLASSES = checkpoint["meta"]["CLASSES"]
             else:
                 import warnings
-                warnings.simplefilter('once')
-                warnings.warn('Class names are not saved in the checkpoint\'s '
-                              'meta data, use trash classes by default.')
-                classes = ("General trash", "Paper", "Paper pack", "Metal", "Glass", 
-                        "Plastic", "Styrofoam", "Plastic bag", "Battery", "Clothing")
+
+                warnings.simplefilter("once")
+                warnings.warn(
+                    "Class names are not saved in the checkpoint's "
+                    "meta data, use trash classes by default."
+                )
+                classes = (
+                    "General trash",
+                    "Paper",
+                    "Paper pack",
+                    "Metal",
+                    "Glass",
+                    "Plastic",
+                    "Styrofoam",
+                    "Plastic bag",
+                    "Battery",
+                    "Clothing",
+                )
                 # warnings.warn('Class names are not saved in the checkpoint\'s '
                 #               'meta data, use COCO classes by default.')
                 # detector.CLASSES = get_classes('coco')
@@ -116,53 +130,47 @@ class DetCAMModel(nn.Module):
         if self.return_loss:
             assert bboxes is not None
             assert labels is not None
-            cfg.data.test.pipeline[0].type = 'LoadImageFromWebcam'
-            cfg.data.test.pipeline = replace_ImageToTensor(
-                cfg.data.test.pipeline)
+            cfg.data.test.pipeline[0].type = "LoadImageFromWebcam"
+            cfg.data.test.pipeline = replace_ImageToTensor(cfg.data.test.pipeline)
             cfg.data.test.pipeline[1].transforms[-1] = dict(
-                type='Collect', keys=['img', 'gt_bboxes', 'gt_labels'])
+                type="Collect", keys=["img", "gt_bboxes", "gt_labels"]
+            )
             test_pipeline = Compose(cfg.data.test.pipeline)
             # TODO: support mask
             data = dict(
                 img=self.img,
                 gt_bboxes=bboxes,
                 gt_labels=labels.astype(np.long),
-                bbox_fields=['gt_bboxes'])
+                bbox_fields=["gt_bboxes"],
+            )
             data = test_pipeline(data)
             data = collate([data], samples_per_gpu=1)
 
             # just get the actual data from DataContainer
-            data['img_metas'] = [
-                img_metas.data[0][0] for img_metas in data['img_metas']
+            data["img_metas"] = [
+                img_metas.data[0][0] for img_metas in data["img_metas"]
             ]
-            data['img'] = [img.data[0] for img in data['img']]
-            data['gt_bboxes'] = [
-                gt_bboxes.data[0] for gt_bboxes in data['gt_bboxes']
-            ]
-            data['gt_labels'] = [
-                gt_labels.data[0] for gt_labels in data['gt_labels']
-            ]
+            data["img"] = [img.data[0] for img in data["img"]]
+            data["gt_bboxes"] = [gt_bboxes.data[0] for gt_bboxes in data["gt_bboxes"]]
+            data["gt_labels"] = [gt_labels.data[0] for gt_labels in data["gt_labels"]]
             if next(self.detector.parameters()).is_cuda:
                 # scatter to specified GPU
                 data = scatter(data, [self.device])[0]
 
-            data['img'] = data['img'][0]
-            data['gt_bboxes'] = data['gt_bboxes'][0]
-            data['gt_labels'] = data['gt_labels'][0]
+            data["img"] = data["img"][0]
+            data["gt_bboxes"] = data["gt_bboxes"][0]
+            data["gt_labels"] = data["gt_labels"][0]
         else:
             # set loading pipeline type
-            cfg.data.test.pipeline[0].type = 'LoadImageFromWebcam'
+            cfg.data.test.pipeline[0].type = "LoadImageFromWebcam"
             data = dict(img=self.img)
-            cfg.data.test.pipeline = replace_ImageToTensor(
-                cfg.data.test.pipeline)
+            cfg.data.test.pipeline = replace_ImageToTensor(cfg.data.test.pipeline)
             test_pipeline = Compose(cfg.data.test.pipeline)
             data = test_pipeline(data)
             data = collate([data], samples_per_gpu=1)
             # just get the actual data from DataContainer
-            data['img_metas'] = [
-                img_metas.data[0] for img_metas in data['img_metas']
-            ]
-            data['img'] = [img.data[0] for img in data['img']]
+            data["img_metas"] = [img_metas.data[0] for img_metas in data["img_metas"]]
+            data["img"] = [img.data[0] for img in data["img"]]
 
             if next(self.detector.parameters()).is_cuda:
                 # scatter to specified GPU
@@ -171,7 +179,7 @@ class DetCAMModel(nn.Module):
                 for m in self.detector.modules():
                     assert not isinstance(
                         m, RoIPool
-                    ), 'CPU inference with RoIPool is not supported currently.'
+                    ), "CPU inference with RoIPool is not supported currently."
 
         self.input_data = data
 
@@ -183,7 +191,8 @@ class DetCAMModel(nn.Module):
         else:
             with torch.no_grad():
                 results = self.detector(
-                    return_loss=False, rescale=True, **self.input_data)[0]
+                    return_loss=False, rescale=True, **self.input_data
+                )[0]
 
                 if isinstance(results, tuple):
                     bbox_result, segm_result = results
@@ -203,8 +212,7 @@ class DetCAMModel(nn.Module):
                 if segm_result is not None and len(labels) > 0:  # non empty
                     segms = mmcv.concat_list(segm_result)
                     if isinstance(segms[0], torch.Tensor):
-                        segms = torch.stack(
-                            segms, dim=0).detach().cpu().numpy()
+                        segms = torch.stack(segms, dim=0).detach().cpu().numpy()
                     else:
                         segms = np.stack(segms, axis=0)
 
@@ -216,30 +224,26 @@ class DetCAMModel(nn.Module):
                     labels = labels[inds]
                     if segms is not None:
                         segms = segms[inds, ...]
-                return [{'bboxes': bboxes, 'labels': labels, 'segms': segms}]
+                return [{"bboxes": bboxes, "labels": labels, "segms": segms}]
 
 
 class DetAblationLayer(AblationLayer):
-
     def __init__(self):
         super(DetAblationLayer, self).__init__()
         self.activations = None
 
-    def set_next_batch(self, input_batch_index, activations,
-                       num_channels_to_ablate):
+    def set_next_batch(self, input_batch_index, activations, num_channels_to_ablate):
         """Extract the next batch member from activations, and repeat it
         num_channels_to_ablate times."""
         if isinstance(activations, torch.Tensor):
-            return super(DetAblationLayer,
-                         self).set_next_batch(input_batch_index, activations,
-                                              num_channels_to_ablate)
+            return super(DetAblationLayer, self).set_next_batch(
+                input_batch_index, activations, num_channels_to_ablate
+            )
 
         self.activations = []
         for activation in activations:
-            activation = activation[
-                input_batch_index, :, :, :].clone().unsqueeze(0)
-            self.activations.append(
-                activation.repeat(num_channels_to_ablate, 1, 1, 1))
+            activation = activation[input_batch_index, :, :, :].clone().unsqueeze(0)
+            self.activations.append(activation.repeat(num_channels_to_ablate, 1, 1, 1))
 
     def __call__(self, x):
         """Go over the activation indices to be ablated, stored in
@@ -256,11 +260,11 @@ class DetAblationLayer(AblationLayer):
         channel_cumsum = np.cumsum([r.shape[1] for r in result])
         num_channels_to_ablate = result[0].size(0)  # batch
         for i in range(num_channels_to_ablate):
-            pyramid_layer = bisect.bisect_right(channel_cumsum,
-                                                self.indices[i])
+            pyramid_layer = bisect.bisect_right(channel_cumsum, self.indices[i])
             if pyramid_layer > 0:
-                index_in_pyramid_layer = self.indices[i] - channel_cumsum[
-                    pyramid_layer - 1]
+                index_in_pyramid_layer = (
+                    self.indices[i] - channel_cumsum[pyramid_layer - 1]
+                )
             else:
                 index_in_pyramid_layer = self.indices[i]
             result[pyramid_layer][i, index_in_pyramid_layer, :, :] = -1000
@@ -280,29 +284,31 @@ class DetCAMVisualizer:
             and aggregate feature maps. Defaults to None.
     """
 
-    def __init__(self,
-                 method_class,
-                 model,
-                 target_layers,
-                 reshape_transform=None,
-                 is_need_grad=False,
-                 extra_params=None):
+    def __init__(
+        self,
+        method_class,
+        model,
+        target_layers,
+        reshape_transform=None,
+        is_need_grad=False,
+        extra_params=None,
+    ):
         self.target_layers = target_layers
         self.reshape_transform = reshape_transform
         self.is_need_grad = is_need_grad
 
-        if method_class.__name__ == 'AblationCAM':
-            batch_size = extra_params.get('batch_size', 1)
-            ratio_channels_to_ablate = extra_params.get(
-                'ratio_channels_to_ablate', 1.)
+        if method_class.__name__ == "AblationCAM":
+            batch_size = extra_params.get("batch_size", 1)
+            ratio_channels_to_ablate = extra_params.get("ratio_channels_to_ablate", 1.0)
             self.cam = AblationCAM(
                 model,
                 target_layers,
-                use_cuda=True if 'cuda' in model.device else False,
+                use_cuda=True if "cuda" in model.device else False,
                 reshape_transform=reshape_transform,
                 batch_size=batch_size,
-                ablation_layer=extra_params['ablation_layer'],
-                ratio_channels_to_ablate=ratio_channels_to_ablate)
+                ablation_layer=extra_params["ablation_layer"],
+                ratio_channels_to_ablate=ratio_channels_to_ablate,
+            )
         else:
             # self.cam = method_class(
             #     model,
@@ -326,7 +332,8 @@ class DetCAMVisualizer:
 
         if self.is_need_grad is True:
             self.cam.activations_and_grads = ActivationsAndGradients(
-                model, self.target_layers, self.reshape_transform)
+                model, self.target_layers, self.reshape_transform
+            )
             self.is_need_grad = False
         else:
             self.cam.activations_and_grads.release()
@@ -337,12 +344,7 @@ class DetCAMVisualizer:
         img = torch.from_numpy(img)[None].permute(0, 3, 1, 2).to(dtype=torch.float16)
         return self.cam(img, targets, aug_smooth, eigen_smooth)[0, :]
 
-    def show_cam(self,
-                 image,
-                 boxes,
-                 labels,
-                 grayscale_cam,
-                 with_norm_in_bboxes=False):
+    def show_cam(self, image, boxes, labels, grayscale_cam, with_norm_in_bboxes=False):
         """Normalize the CAM to be in the range [0, 1] inside every bounding
         boxes, and zero outside of the bounding boxes."""
         if with_norm_in_bboxes is True:
@@ -351,9 +353,7 @@ class DetCAMVisualizer:
             images = []
             for x1, y1, x2, y2 in boxes:
                 img = renormalized_cam * 0
-                img[y1:y2,
-                    x1:x2] = scale_cam_image(grayscale_cam[y1:y2,
-                                                           x1:x2].copy())
+                img[y1:y2, x1:x2] = scale_cam_image(grayscale_cam[y1:y2, x1:x2].copy())
                 images.append(img)
 
             renormalized_cam = np.max(np.float32(images), axis=0)
@@ -362,26 +362,31 @@ class DetCAMVisualizer:
             renormalized_cam = grayscale_cam
 
         cam_image_renormalized = show_cam_on_image(
-            image / 255, renormalized_cam, use_rgb=False)
+            image / 255, renormalized_cam, use_rgb=False
+        )
 
-        image_with_bounding_boxes = self._draw_boxes(boxes, labels,
-                                                     cam_image_renormalized)
+        image_with_bounding_boxes = self._draw_boxes(
+            boxes, labels, cam_image_renormalized
+        )
         return image_with_bounding_boxes
 
     def _draw_boxes(self, boxes, labels, image):
         for i, box in enumerate(boxes):
             label = labels[i]
             color = self.COLORS[label]
-            cv2.rectangle(image, (int(box[0]), int(box[1])),
-                          (int(box[2]), int(box[3])), color, 2)
+            cv2.rectangle(
+                image, (int(box[0]), int(box[1])), (int(box[2]), int(box[3])), color, 2
+            )
             cv2.putText(
                 image,
-                self.classes[label], (int(box[0]), int(box[1] - 5)),
+                self.classes[label],
+                (int(box[0]), int(box[1] - 5)),
                 cv2.FONT_HERSHEY_SIMPLEX,
                 0.5,
                 color,
                 1,
-                lineType=cv2.LINE_AA)
+                lineType=cv2.LINE_AA,
+            )
         return image
 
 
@@ -398,12 +403,7 @@ class DetBoxScoreTarget:
     The total score is the sum of all the box scores.
     """
 
-    def __init__(self,
-                 bboxes,
-                 labels,
-                 segms=None,
-                 match_iou_thr=0.5,
-                 device='cuda:0'):
+    def __init__(self, bboxes, labels, segms=None, match_iou_thr=0.5, device="cuda:0"):
         assert len(bboxes) == len(labels)
         self.focal_bboxes = torch.from_numpy(bboxes).to(device=device)
         self.focal_labels = labels
@@ -417,12 +417,12 @@ class DetBoxScoreTarget:
         self.device = device
 
     def __call__(self, results):
-        output = torch.tensor([0.], device=self.device)
+        output = torch.tensor([0.0], device=self.device)
 
-        if 'loss_cls' in results:
+        if "loss_cls" in results:
             # grad_base_method
             for loss_key, loss_value in results.items():
-                if 'loss' not in loss_key:
+                if "loss" not in loss_key:
                     continue
                 if isinstance(loss_value, list):
                     output += sum(loss_value)
@@ -431,32 +431,33 @@ class DetBoxScoreTarget:
             return output
         else:
             # grad_free_method
-            if len(results['bboxes']) == 0:
+            if len(results["bboxes"]) == 0:
                 return output
 
-            pred_bboxes = torch.from_numpy(results['bboxes']).to(self.device)
-            pred_labels = results['labels']
-            pred_segms = results['segms']
+            pred_bboxes = torch.from_numpy(results["bboxes"]).to(self.device)
+            pred_labels = results["labels"]
+            pred_segms = results["segms"]
 
             if pred_segms is not None:
                 pred_segms = torch.from_numpy(pred_segms).to(self.device)
 
             for focal_box, focal_label, focal_segm in zip(
-                    self.focal_bboxes, self.focal_labels, self.focal_segms):
-                ious = torchvision.ops.box_iou(focal_box[None],
-                                               pred_bboxes[..., :4])
+                self.focal_bboxes, self.focal_labels, self.focal_segms
+            ):
+                ious = torchvision.ops.box_iou(focal_box[None], pred_bboxes[..., :4])
                 index = ious.argmax()
-                if ious[0, index] > self.match_iou_thr and pred_labels[
-                        index] == focal_label:
+                if (
+                    ious[0, index] > self.match_iou_thr
+                    and pred_labels[index] == focal_label
+                ):
                     # TODO: Adaptive adjustment of weights based on algorithms
                     score = ious[0, index] + pred_bboxes[..., 4][index]
                     output = output + score
 
                     if focal_segm is not None and pred_segms is not None:
-                        segms_score = (focal_segm *
-                                       pred_segms[index]).sum() / (
-                                           focal_segm.sum() +
-                                           pred_segms[index].sum() + 1e-7)
+                        segms_score = (focal_segm * pred_segms[index]).sum() / (
+                            focal_segm.sum() + pred_segms[index].sum() + 1e-7
+                        )
                         output = output + segms_score
             return output
 
@@ -465,21 +466,20 @@ class DetBoxScoreTarget:
 #  does not have a grad_fn.
 #  Can be removed once the source code is fixed.
 class EigenCAM(BaseCAM):
-
-    def __init__(self,
-                 model,
-                 target_layers,
-                 use_cuda=False,
-                 reshape_transform=None):
+    def __init__(self, model, target_layers, use_cuda=False, reshape_transform=None):
         super(EigenCAM, self).__init__(
-            model,
-            target_layers,
-            use_cuda,
-            reshape_transform,
-            uses_gradients=False)
+            model, target_layers, use_cuda, reshape_transform, uses_gradients=False
+        )
 
-    def get_cam_image(self, input_tensor, target_layer, target_category,
-                      activations, grads, eigen_smooth):
+    def get_cam_image(
+        self,
+        input_tensor,
+        target_layer,
+        target_category,
+        activations,
+        grads,
+        eigen_smooth,
+    ):
         return get_2d_projection(activations)
 
 
@@ -489,14 +489,18 @@ class FeatmapAM(EigenCAM):
     Visualize the (B,C,H,W) feature map averaged over the channel dimension.
     """
 
-    def __init__(self,
-                 model,
-                 target_layers,
-                 use_cuda=False,
-                 reshape_transform=None):
-        super(FeatmapAM, self).__init__(model, target_layers, use_cuda,
-                                        reshape_transform)
+    def __init__(self, model, target_layers, use_cuda=False, reshape_transform=None):
+        super(FeatmapAM, self).__init__(
+            model, target_layers, use_cuda, reshape_transform
+        )
 
-    def get_cam_image(self, input_tensor, target_layer, target_category,
-                      activations, grads, eigen_smooth):
+    def get_cam_image(
+        self,
+        input_tensor,
+        target_layer,
+        target_category,
+        activations,
+        grads,
+        eigen_smooth,
+    ):
         return np.mean(activations, axis=1)

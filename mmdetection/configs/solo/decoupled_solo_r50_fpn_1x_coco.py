@@ -1,10 +1,10 @@
 _base_ = [
-    './solo_r50_fpn_1x_coco.py',
+    "./solo_r50_fpn_1x_coco.py",
 ]
 # model settings
 model = dict(
     mask_head=dict(
-        type='DecoupledSOLOHead',
+        type="DecoupledSOLOHead",
         num_classes=80,
         in_channels=256,
         stacked_convs=7,
@@ -15,14 +15,13 @@ model = dict(
         num_grids=[40, 36, 24, 16, 12],
         cls_down_index=0,
         loss_mask=dict(
-            type='DiceLoss', use_sigmoid=True, activate=False,
-            loss_weight=3.0),
+            type="DiceLoss", use_sigmoid=True, activate=False, loss_weight=3.0
+        ),
         loss_cls=dict(
-            type='FocalLoss',
-            use_sigmoid=True,
-            gamma=2.0,
-            alpha=0.25,
-            loss_weight=1.0),
-        norm_cfg=dict(type='GN', num_groups=32, requires_grad=True)))
+            type="FocalLoss", use_sigmoid=True, gamma=2.0, alpha=0.25, loss_weight=1.0
+        ),
+        norm_cfg=dict(type="GN", num_groups=32, requires_grad=True),
+    )
+)
 
-optimizer = dict(type='SGD', lr=0.01)
+optimizer = dict(type="SGD", lr=0.01)
