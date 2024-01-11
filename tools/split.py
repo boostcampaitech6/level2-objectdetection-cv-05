@@ -13,8 +13,8 @@ except ImportError:
 from collections import Counter
 
 # TODO #
-annotation = "../dataset/train.json"
-output_dir = "../dataset/json_folder"
+annotation = "dataset/cleansing.json"
+output_dir = 'dataset/json_folder'
 METHOD = 1
 ########
 methods = {
@@ -43,7 +43,7 @@ if METHOD == 0:
         train_data_img_ids = set(
             [data["annotations"][idx]["image_id"] for idx in train_idx]
         )
-        train_data_imgs = [data["images"][idx] for idx in train_data_img_ids]
+        train_data_imgs = [img for img in data['images'] for img_id in train_data_img_ids if img['id'] == img_id]
         train_data = {
             "images": train_data_imgs,
             "categories": data["categories"],
@@ -53,7 +53,7 @@ if METHOD == 0:
         val_data_img_ids = set(
             [data["annotations"][idx]["image_id"] for idx in val_idx]
         )
-        val_data_imgs = [data["images"][idx] for idx in val_data_img_ids]
+        val_data_imgs = [img for img in data['images'] for img_id in val_data_img_ids if img['id'] == img_id]
         val_data = {
             "images": val_data_imgs,
             "categories": data["categories"],
@@ -96,7 +96,7 @@ elif METHOD == 1:
         train_data_img_ids = set(
             [data["annotations"][idx]["image_id"] for idx in train_idx]
         )
-        train_data_imgs = [data["images"][idx] for idx in train_data_img_ids]
+        train_data_imgs = [img for img in data['images'] for img_id in train_data_img_ids if img['id'] == img_id]
         train_data = {
             "images": train_data_imgs,
             "categories": data["categories"],
@@ -106,7 +106,7 @@ elif METHOD == 1:
         val_data_img_ids = set(
             [data["annotations"][idx]["image_id"] for idx in val_idx]
         )
-        val_data_imgs = [data["images"][idx] for idx in val_data_img_ids]
+        val_data_imgs = [img for img in data['images'] for img_id in val_data_img_ids if img['id'] == img_id]
         val_data = {
             "images": val_data_imgs,
             "categories": data["categories"],
