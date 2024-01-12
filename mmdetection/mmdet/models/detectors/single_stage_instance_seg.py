@@ -17,19 +17,22 @@ INF = 1e8
 class SingleStageInstanceSegmentor(BaseDetector):
     """Base class for single-stage instance segmentors."""
 
-    def __init__(self,
-                 backbone,
-                 neck=None,
-                 bbox_head=None,
-                 mask_head=None,
-                 train_cfg=None,
-                 test_cfg=None,
-                 pretrained=None,
-                 init_cfg=None):
-
+    def __init__(
+        self,
+        backbone,
+        neck=None,
+        bbox_head=None,
+        mask_head=None,
+        train_cfg=None,
+        test_cfg=None,
+        pretrained=None,
+        init_cfg=None,
+    ):
         if pretrained:
-            warnings.warn('DeprecationWarning: pretrained is deprecated, '
-                          'please use "init_cfg" instead')
+            warnings.warn(
+                "DeprecationWarning: pretrained is deprecated, "
+                'please use "init_cfg" instead'
+            )
             backbone.pretrained = pretrained
         super(SingleStageInstanceSegmentor, self).__init__(init_cfg=init_cfg)
         self.backbone = build_backbone(backbone)
@@ -44,8 +47,9 @@ class SingleStageInstanceSegmentor(BaseDetector):
         else:
             self.bbox_head = None
 
-        assert mask_head, f'`mask_head` must ' \
-                          f'be implemented in {self.__class__.__name__}'
+        assert mask_head, (
+            f"`mask_head` must " f"be implemented in {self.__class__.__name__}"
+        )
         mask_head.update(train_cfg=copy.deepcopy(train_cfg))
         mask_head.update(test_cfg=copy.deepcopy(test_cfg))
         self.mask_head = build_head(mask_head)
@@ -66,16 +70,19 @@ class SingleStageInstanceSegmentor(BaseDetector):
         See `mmdetection/tools/analysis_tools/get_flops.py`
         """
         raise NotImplementedError(
-            f'`forward_dummy` is not implemented in {self.__class__.__name__}')
+            f"`forward_dummy` is not implemented in {self.__class__.__name__}"
+        )
 
-    def forward_train(self,
-                      img,
-                      img_metas,
-                      gt_masks,
-                      gt_labels,
-                      gt_bboxes=None,
-                      gt_bboxes_ignore=None,
-                      **kwargs):
+    def forward_train(
+        self,
+        img,
+        img_metas,
+        gt_masks,
+        gt_labels,
+        gt_bboxes=None,
+        gt_bboxes_ignore=None,
+        **kwargs,
+    ):
         """
         Args:
             img (Tensor): Input images of shape (B, C, H, W).
@@ -119,7 +126,8 @@ class SingleStageInstanceSegmentor(BaseDetector):
                 gt_masks=gt_masks,
                 img_metas=img_metas,
                 gt_bboxes_ignore=gt_bboxes_ignore,
-                **kwargs)
+                **kwargs,
+            )
             losses.update(det_losses)
         else:
             positive_infos = None
@@ -132,7 +140,8 @@ class SingleStageInstanceSegmentor(BaseDetector):
             positive_infos=positive_infos,
             gt_bboxes=gt_bboxes,
             gt_bboxes_ignore=gt_bboxes_ignore,
-            **kwargs)
+            **kwargs,
+        )
         # avoid loss override
         assert not set(mask_loss.keys()) & set(losses.keys())
 
@@ -168,12 +177,14 @@ class SingleStageInstanceSegmentor(BaseDetector):
             outs = self.bbox_head(feat)
             # results_list is list[obj:`InstanceData`]
             results_list = self.bbox_head.get_results(
-                *outs, img_metas=img_metas, cfg=self.test_cfg, rescale=rescale)
+                *outs, img_metas=img_metas, cfg=self.test_cfg, rescale=rescale
+            )
         else:
             results_list = None
 
         results_list = self.mask_head.simple_test(
-            feat, img_metas, rescale=rescale, instances_list=results_list)
+            feat, img_metas, rescale=rescale, instances_list=results_list
+        )
 
         format_results_list = []
         for results in results_list:
@@ -210,12 +221,12 @@ class SingleStageInstanceSegmentor(BaseDetector):
                   is the number of masks with this category.
         """
         data_keys = results.keys()
-        assert 'scores' in data_keys
-        assert 'labels' in data_keys
+        assert "scores" in data_keys
+        assert "labels" in data_keys
 
-        assert 'masks' in data_keys, \
-            'results should contain ' \
-            'masks when format the results '
+        assert "masks" in data_keys, (
+            "results should contain " "masks when format the results "
+        )
         mask_results = [[] for _ in range(self.mask_head.num_classes)]
 
         num_masks = len(results)
@@ -229,16 +240,14 @@ class SingleStageInstanceSegmentor(BaseDetector):
 
         labels = results.labels.detach().cpu().numpy()
 
-        if 'bboxes' not in results:
+        if "bboxes" not in results:
             # create dummy bbox results to store the scores
             results.bboxes = results.scores.new_zeros(len(results), 4)
 
-        det_bboxes = torch.cat([results.bboxes, results.scores[:, None]],
-                               dim=-1)
+        det_bboxes = torch.cat([results.bboxes, results.scores[:, None]], dim=-1)
         det_bboxes = det_bboxes.detach().cpu().numpy()
         bbox_results = [
-            det_bboxes[labels == i, :]
-            for i in range(self.mask_head.num_classes)
+            det_bboxes[labels == i, :] for i in range(self.mask_head.num_classes)
         ]
 
         masks = results.masks.detach().cpu().numpy()
@@ -252,19 +261,21 @@ class SingleStageInstanceSegmentor(BaseDetector):
     def aug_test(self, imgs, img_metas, rescale=False):
         raise NotImplementedError
 
-    def show_result(self,
-                    img,
-                    result,
-                    score_thr=0.3,
-                    bbox_color=(72, 101, 241),
-                    text_color=(72, 101, 241),
-                    mask_color=None,
-                    thickness=2,
-                    font_size=13,
-                    win_name='',
-                    show=False,
-                    wait_time=0,
-                    out_file=None):
+    def show_result(
+        self,
+        img,
+        result,
+        score_thr=0.3,
+        bbox_color=(72, 101, 241),
+        text_color=(72, 101, 241),
+        mask_color=None,
+        thickness=2,
+        font_size=13,
+        win_name="",
+        show=False,
+        wait_time=0,
+        out_file=None,
+    ):
         """Draw `result` over `img`.
 
         Args:
@@ -336,8 +347,8 @@ class SingleStageInstanceSegmentor(BaseDetector):
                     y = np.where(y_any[idx, :])[0]
                     if len(x) > 0 and len(y) > 0:
                         bboxes[idx, :4] = np.array(
-                            [x[0], y[0], x[-1] + 1, y[-1] + 1],
-                            dtype=np.float32)
+                            [x[0], y[0], x[-1] + 1, y[-1] + 1], dtype=np.float32
+                        )
         # if out_file specified, do not show image in window
         if out_file is not None:
             show = False
@@ -357,7 +368,8 @@ class SingleStageInstanceSegmentor(BaseDetector):
             win_name=win_name,
             show=show,
             wait_time=wait_time,
-            out_file=out_file)
+            out_file=out_file,
+        )
 
         if not (show or out_file):
             return img

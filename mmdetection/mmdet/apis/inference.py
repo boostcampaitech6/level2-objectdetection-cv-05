@@ -15,7 +15,7 @@ from mmdet.datasets.pipelines import Compose
 from mmdet.models import build_detector
 
 
-def init_detector(config, checkpoint=None, device='cuda:0', cfg_options=None):
+def init_detector(config, checkpoint=None, device="cuda:0", cfg_options=None):
     """Initialize a detector from config file.
 
     Args:
@@ -32,25 +32,28 @@ def init_detector(config, checkpoint=None, device='cuda:0', cfg_options=None):
     if isinstance(config, (str, Path)):
         config = mmcv.Config.fromfile(config)
     elif not isinstance(config, mmcv.Config):
-        raise TypeError('config must be a filename or Config object, '
-                        f'but got {type(config)}')
+        raise TypeError(
+            "config must be a filename or Config object, " f"but got {type(config)}"
+        )
     if cfg_options is not None:
         config.merge_from_dict(cfg_options)
-    if 'pretrained' in config.model:
+    if "pretrained" in config.model:
         config.model.pretrained = None
-    elif 'init_cfg' in config.model.backbone:
+    elif "init_cfg" in config.model.backbone:
         config.model.backbone.init_cfg = None
     config.model.train_cfg = None
-    model = build_detector(config.model, test_cfg=config.get('test_cfg'))
+    model = build_detector(config.model, test_cfg=config.get("test_cfg"))
     if checkpoint is not None:
-        checkpoint = load_checkpoint(model, checkpoint, map_location='cpu')
-        if 'CLASSES' in checkpoint.get('meta', {}):
-            model.CLASSES = checkpoint['meta']['CLASSES']
+        checkpoint = load_checkpoint(model, checkpoint, map_location="cpu")
+        if "CLASSES" in checkpoint.get("meta", {}):
+            model.CLASSES = checkpoint["meta"]["CLASSES"]
         else:
-            warnings.simplefilter('once')
-            warnings.warn('Class names are not saved in the checkpoint\'s '
-                          'meta data, use COCO classes by default.')
-            model.CLASSES = get_classes('coco')
+            warnings.simplefilter("once")
+            warnings.warn(
+                "Class names are not saved in the checkpoint's "
+                "meta data, use COCO classes by default."
+            )
+            model.CLASSES = get_classes("coco")
     model.cfg = config  # save the config in the model for convenience
     model.to(device)
     model.eval()
@@ -72,21 +75,23 @@ class LoadImage:
         Returns:
             dict: ``results`` will be returned containing loaded image.
         """
-        warnings.simplefilter('once')
-        warnings.warn('`LoadImage` is deprecated and will be removed in '
-                      'future releases. You may use `LoadImageFromWebcam` '
-                      'from `mmdet.datasets.pipelines.` instead.')
-        if isinstance(results['img'], str):
-            results['filename'] = results['img']
-            results['ori_filename'] = results['img']
+        warnings.simplefilter("once")
+        warnings.warn(
+            "`LoadImage` is deprecated and will be removed in "
+            "future releases. You may use `LoadImageFromWebcam` "
+            "from `mmdet.datasets.pipelines.` instead."
+        )
+        if isinstance(results["img"], str):
+            results["filename"] = results["img"]
+            results["ori_filename"] = results["img"]
         else:
-            results['filename'] = None
-            results['ori_filename'] = None
-        img = mmcv.imread(results['img'])
-        results['img'] = img
-        results['img_fields'] = ['img']
-        results['img_shape'] = img.shape
-        results['ori_shape'] = img.shape
+            results["filename"] = None
+            results["ori_filename"] = None
+        img = mmcv.imread(results["img"])
+        results["img"] = img
+        results["img_fields"] = ["img"]
+        results["img_shape"] = img.shape
+        results["ori_shape"] = img.shape
         return results
 
 
@@ -115,7 +120,7 @@ def inference_detector(model, imgs):
     if isinstance(imgs[0], np.ndarray):
         cfg = cfg.copy()
         # set loading pipeline type
-        cfg.data.test.pipeline[0].type = 'LoadImageFromWebcam'
+        cfg.data.test.pipeline[0].type = "LoadImageFromWebcam"
 
     cfg.data.test.pipeline = replace_ImageToTensor(cfg.data.test.pipeline)
     test_pipeline = Compose(cfg.data.test.pipeline)
@@ -135,8 +140,8 @@ def inference_detector(model, imgs):
 
     data = collate(datas, samples_per_gpu=len(imgs))
     # just get the actual data from DataContainer
-    data['img_metas'] = [img_metas.data[0] for img_metas in data['img_metas']]
-    data['img'] = [img.data[0] for img in data['img']]
+    data["img_metas"] = [img_metas.data[0] for img_metas in data["img_metas"]]
+    data["img"] = [img.data[0] for img in data["img"]]
     if next(model.parameters()).is_cuda:
         # scatter to specified GPU
         data = scatter(data, [device])[0]
@@ -144,7 +149,7 @@ def inference_detector(model, imgs):
         for m in model.modules():
             assert not isinstance(
                 m, RoIPool
-            ), 'CPU inference with RoIPool is not supported currently.'
+            ), "CPU inference with RoIPool is not supported currently."
 
     # forward the model
     with torch.no_grad():
@@ -175,7 +180,7 @@ async def async_inference_detector(model, imgs):
     if isinstance(imgs[0], np.ndarray):
         cfg = cfg.copy()
         # set loading pipeline type
-        cfg.data.test.pipeline[0].type = 'LoadImageFromWebcam'
+        cfg.data.test.pipeline[0].type = "LoadImageFromWebcam"
 
     cfg.data.test.pipeline = replace_ImageToTensor(cfg.data.test.pipeline)
     test_pipeline = Compose(cfg.data.test.pipeline)
@@ -195,8 +200,8 @@ async def async_inference_detector(model, imgs):
 
     data = collate(datas, samples_per_gpu=len(imgs))
     # just get the actual data from DataContainer
-    data['img_metas'] = [img_metas.data[0] for img_metas in data['img_metas']]
-    data['img'] = [img.data[0] for img in data['img']]
+    data["img_metas"] = [img_metas.data[0] for img_metas in data["img_metas"]]
+    data["img"] = [img.data[0] for img in data["img"]]
     if next(model.parameters()).is_cuda:
         # scatter to specified GPU
         data = scatter(data, [device])[0]
@@ -204,7 +209,7 @@ async def async_inference_detector(model, imgs):
         for m in model.modules():
             assert not isinstance(
                 m, RoIPool
-            ), 'CPU inference with RoIPool is not supported currently.'
+            ), "CPU inference with RoIPool is not supported currently."
 
     # We don't restore `torch.is_grad_enabled()` value during concurrent
     # inference since execution can overlap
@@ -213,14 +218,16 @@ async def async_inference_detector(model, imgs):
     return results
 
 
-def show_result_pyplot(model,
-                       img,
-                       result,
-                       score_thr=0.3,
-                       title='result',
-                       wait_time=0,
-                       palette=None,
-                       out_file=None):
+def show_result_pyplot(
+    model,
+    img,
+    result,
+    score_thr=0.3,
+    title="result",
+    wait_time=0,
+    palette=None,
+    out_file=None,
+):
     """Visualize the detection results on the image.
 
     Args:
@@ -236,7 +243,7 @@ def show_result_pyplot(model,
         out_file (str or None): The path to write the image.
             Default: None.
     """
-    if hasattr(model, 'module'):
+    if hasattr(model, "module"):
         model = model.module
     model.show_result(
         img,
@@ -248,4 +255,5 @@ def show_result_pyplot(model,
         bbox_color=palette,
         text_color=(200, 200, 200),
         mask_color=palette,
-        out_file=out_file)
+        out_file=out_file,
+    )
