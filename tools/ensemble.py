@@ -113,16 +113,14 @@ def main(config):
         prediction_strings.append(prediction_string)
         file_names.append(image_id)
 
-        submission = pd.DataFrame()
-        submission["PredictionString"] = prediction_strings
-        submission["image_id"] = file_names
-        os.makedirs(f"{config.submissions_dir}/ensemble", exist_ok=True)
-        submission.to_csv(
-            f"{config.submissions_dir}/ensemble/submission_{config.ensemble}_{config.iou_thr}_ensemble.csv",
-            index=None,
-        )
-
-        submission.head()
+    submission = pd.DataFrame()
+    submission["PredictionString"] = prediction_strings
+    submission["image_id"] = file_names
+    os.makedirs(f"{config.submissions_dir}/ensemble", exist_ok=True)
+    submission.to_csv(
+        f"{config.submissions_dir}/ensemble/submission_{config.ensemble}_{config.iou_thr}_ensemble.csv",
+        index=None,
+    )
 
 
 if __name__ == "__main__":
