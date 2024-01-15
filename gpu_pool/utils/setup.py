@@ -35,6 +35,11 @@ logger = get_logger("setup")
 
 
 def setup():
+    installQueueProcess()
+    modifyConfigProcess()
+    completeProcess()
+
+def installQueueProcess():
     setup_log = handle_setup(INSTALL_REDIS_COMMAND)
 
     if setup_log.returncode != SUCCESS_CODE:
@@ -44,6 +49,7 @@ def setup():
     else:
         logger.info(INSTALL_REDIS_SUCCESS_MESSAGE)
 
+def modifyConfigProcess():
     config_log = handle_setup(SET_REDIS_CONFIG_COMMAND)
 
     if config_log.returncode != SUCCESS_CODE:
@@ -54,9 +60,9 @@ def setup():
         logger.info(MODIFY_CONFIG_MESSAGE)
         input(COMPLETE_CONFIG_MESSAGE)
 
+def completeProcess():
     handle_setup(RESTART_COMMAND)
     logger.info(FINISH_MESSAGE)
-
 
 def getErrorMessage(log):
     return log.stderr.read().decode()
