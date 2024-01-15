@@ -7,4 +7,4 @@ TRAIN_PATH: Final = "live/train.py"
 REDIS_SERVER_IP: Final = "publisher ip"
 REDIS_SERVER_PORT: Final = 0
 REDIS_SERVER_INDEX: Final = 0
-REDIS_SERVER_PASSWORD:Final = "publisher redis password"
+REDIS_SERVER_PASSWORD: Final = "publisher redis password"
