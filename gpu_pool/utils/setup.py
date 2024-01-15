@@ -39,6 +39,7 @@ def setup():
     modifyConfigProcess()
     completeProcess()
 
+
 def installQueueProcess():
     setup_log = handle_setup(INSTALL_REDIS_COMMAND)
 
@@ -48,6 +49,7 @@ def installQueueProcess():
         raise Exception()
     else:
         logger.info(INSTALL_REDIS_SUCCESS_MESSAGE)
+
 
 def modifyConfigProcess():
     config_log = handle_setup(SET_REDIS_CONFIG_COMMAND)
@@ -60,9 +62,11 @@ def modifyConfigProcess():
         logger.info(MODIFY_CONFIG_MESSAGE)
         input(COMPLETE_CONFIG_MESSAGE)
 
+
 def completeProcess():
     handle_setup(RESTART_COMMAND)
     logger.info(FINISH_MESSAGE)
+
 
 def getErrorMessage(log):
     return log.stderr.read().decode()
