@@ -34,6 +34,13 @@ if __name__ == "__main__":
         help="config file path (default: None)",
     )
     args.add_argument(
+        "-dc",
+        "--dict_config",
+        default=None,
+        type=str,
+        help="json format dict config",
+    )
+    args.add_argument(
         "-r",
         "--resume",
         default=None,

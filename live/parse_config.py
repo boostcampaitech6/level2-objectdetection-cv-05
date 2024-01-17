@@ -1,7 +1,7 @@
 import os
 import logging
 from pathlib import Path
-from utils import read_json
+from utils import read_json, read_dict
 import dataset as module_dataset
 
 
@@ -28,15 +28,17 @@ class ConfigParser:
         if args.resume is not None:
             resume = Path(args.resume)
             cfg_fname = resume.parent / "config.json"
-        else:
+        elif args.dict_config is None:
             msg_no_cfg = "Configuration file need to be specified. Add '-c config.json', for example."
             assert args.config is not None, msg_no_cfg
             resume = None
             cfg_fname = Path(args.config)
 
-        config = read_json(cfg_fname)
-        if args.config and resume:
-            config.update(read_json(args.config))
+        if args.config:
+            config = read_json(cfg_fname)
+        elif args.dict_config:
+            resume = None
+            config = read_dict(args.dict_config)
 
         modification = {
             opt.target: getattr(args, _get_opt_name(opt.flags)) for opt in options
