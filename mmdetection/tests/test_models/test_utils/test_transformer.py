@@ -3,24 +3,25 @@ import pytest
 import torch
 from mmcv.utils import ConfigDict
 
-from mmdet.models.utils.transformer import (AdaptivePadding,
-                                            DetrTransformerDecoder,
-                                            DetrTransformerEncoder, PatchEmbed,
-                                            PatchMerging, Transformer)
+from mmdet.models.utils.transformer import (
+    AdaptivePadding,
+    DetrTransformerDecoder,
+    DetrTransformerEncoder,
+    PatchEmbed,
+    PatchMerging,
+    Transformer,
+)
 
 
 def test_adaptive_padding():
-
-    for padding in ('same', 'corner'):
+    for padding in ("same", "corner"):
         kernel_size = 16
         stride = 16
         dilation = 1
         input = torch.rand(1, 1, 15, 17)
         pool = AdaptivePadding(
-            kernel_size=kernel_size,
-            stride=stride,
-            dilation=dilation,
-            padding=padding)
+            kernel_size=kernel_size, stride=stride, dilation=dilation, padding=padding
+        )
         out = pool(input)
         # padding to divisible by 16
         assert (out.shape[2], out.shape[3]) == (16, 32)
@@ -34,10 +35,8 @@ def test_adaptive_padding():
         dilation = (1, 1)
 
         adap_pad = AdaptivePadding(
-            kernel_size=kernel_size,
-            stride=stride,
-            dilation=dilation,
-            padding=padding)
+            kernel_size=kernel_size, stride=stride, dilation=dilation, padding=padding
+        )
         input = torch.rand(1, 1, 11, 13)
         out = adap_pad(input)
         # padding to divisible by 2
@@ -48,10 +47,8 @@ def test_adaptive_padding():
         dilation = (1, 1)
 
         adap_pad = AdaptivePadding(
-            kernel_size=kernel_size,
-            stride=stride,
-            dilation=dilation,
-            padding=padding)
+            kernel_size=kernel_size, stride=stride, dilation=dilation, padding=padding
+        )
         input = torch.rand(1, 1, 10, 13)
         out = adap_pad(input)
         #  no padding
@@ -59,10 +56,8 @@ def test_adaptive_padding():
 
         kernel_size = (11, 11)
         adap_pad = AdaptivePadding(
-            kernel_size=kernel_size,
-            stride=stride,
-            dilation=dilation,
-            padding=padding)
+            kernel_size=kernel_size, stride=stride, dilation=dilation, padding=padding
+        )
         input = torch.rand(1, 1, 11, 13)
         out = adap_pad(input)
         #  all padding
@@ -75,19 +70,15 @@ def test_adaptive_padding():
         dilation = (2, 2)
         # actually (7, 9)
         adap_pad = AdaptivePadding(
-            kernel_size=kernel_size,
-            stride=stride,
-            dilation=dilation,
-            padding=padding)
+            kernel_size=kernel_size, stride=stride, dilation=dilation, padding=padding
+        )
         dilation_out = adap_pad(input)
         assert (dilation_out.shape[2], dilation_out.shape[3]) == (16, 21)
         kernel_size = (7, 9)
         dilation = (1, 1)
         adap_pad = AdaptivePadding(
-            kernel_size=kernel_size,
-            stride=stride,
-            dilation=dilation,
-            padding=padding)
+            kernel_size=kernel_size, stride=stride, dilation=dilation, padding=padding
+        )
         kernel79_out = adap_pad(input)
         assert (kernel79_out.shape[2], kernel79_out.shape[3]) == (16, 21)
         assert kernel79_out.shape == dilation_out.shape
@@ -95,10 +86,8 @@ def test_adaptive_padding():
     # assert only support "same" "corner"
     with pytest.raises(AssertionError):
         AdaptivePadding(
-            kernel_size=kernel_size,
-            stride=stride,
-            dilation=dilation,
-            padding=1)
+            kernel_size=kernel_size, stride=stride, dilation=dilation, padding=1
+        )
 
 
 def test_patch_embed():
@@ -117,7 +106,8 @@ def test_patch_embed():
         stride=stride,
         padding=0,
         dilation=1,
-        norm_cfg=None)
+        norm_cfg=None,
+    )
 
     x1, shape = patch_merge_1(dummy_input)
     # test out shape
@@ -166,8 +156,9 @@ def test_patch_embed():
         stride=stride,
         padding=0,
         dilation=2,
-        norm_cfg=dict(type='LN'),
-        input_size=input_size)
+        norm_cfg=dict(type="LN"),
+        input_size=input_size,
+    )
 
     x3, shape = patch_merge_3(dummy_input)
     # test out shape
@@ -178,10 +169,8 @@ def test_patch_embed():
     assert shape[0] * shape[1] == x3.shape[1]
 
     # test the init_out_size with nn.Unfold
-    assert patch_merge_3.init_out_size[1] == (input_size[0] - 2 * 4 -
-                                              1) // 2 + 1
-    assert patch_merge_3.init_out_size[0] == (input_size[0] - 2 * 4 -
-                                              1) // 2 + 1
+    assert patch_merge_3.init_out_size[1] == (input_size[0] - 2 * 4 - 1) // 2 + 1
+    assert patch_merge_3.init_out_size[0] == (input_size[0] - 2 * 4 - 1) // 2 + 1
     H = 11
     W = 12
     input_size = (H, W)
@@ -194,8 +183,9 @@ def test_patch_embed():
         stride=stride,
         padding=0,
         dilation=2,
-        norm_cfg=dict(type='LN'),
-        input_size=input_size)
+        norm_cfg=dict(type="LN"),
+        input_size=input_size,
+    )
 
     _, shape = patch_merge_3(dummy_input)
     # when input_size equal to real input
@@ -212,8 +202,9 @@ def test_patch_embed():
         stride=stride,
         padding=0,
         dilation=2,
-        norm_cfg=dict(type='LN'),
-        input_size=input_size)
+        norm_cfg=dict(type="LN"),
+        input_size=input_size,
+    )
 
     _, shape = patch_merge_3(dummy_input)
     # when input_size equal to real input
@@ -221,7 +212,7 @@ def test_patch_embed():
     assert shape == patch_merge_3.init_out_size
 
     # test adap padding
-    for padding in ('same', 'corner'):
+    for padding in ("same", "corner"):
         in_c = 2
         embed_dims = 3
         B = 2
@@ -241,7 +232,8 @@ def test_patch_embed():
             stride=stride,
             padding=padding,
             dilation=dilation,
-            bias=bias)
+            bias=bias,
+        )
 
         x_out, out_size = patch_embed(x)
         assert x_out.size() == (B, 25, 3)
@@ -263,7 +255,8 @@ def test_patch_embed():
             stride=stride,
             padding=padding,
             dilation=dilation,
-            bias=bias)
+            bias=bias,
+        )
 
         x_out, out_size = patch_embed(x)
         assert x_out.size() == (B, 1, 3)
@@ -285,7 +278,8 @@ def test_patch_embed():
             stride=stride,
             padding=padding,
             dilation=dilation,
-            bias=bias)
+            bias=bias,
+        )
 
         x_out, out_size = patch_embed(x)
         assert x_out.size() == (B, 2, 3)
@@ -307,7 +301,8 @@ def test_patch_embed():
             stride=stride,
             padding=padding,
             dilation=dilation,
-            bias=bias)
+            bias=bias,
+        )
 
         x_out, out_size = patch_embed(x)
         assert x_out.size() == (B, 3, 3)
@@ -316,7 +311,6 @@ def test_patch_embed():
 
 
 def test_patch_merging():
-
     # Test the model with int padding
     in_c = 3
     out_c = 4
@@ -333,7 +327,8 @@ def test_patch_merging():
         stride=stride,
         padding=padding,
         dilation=dilation,
-        bias=bias)
+        bias=bias,
+    )
     B, L, C = 1, 100, 3
     input_size = (10, 10)
     x = torch.rand(B, L, C)
@@ -356,7 +351,8 @@ def test_patch_merging():
         stride=stride,
         padding=padding,
         dilation=dilation,
-        bias=bias)
+        bias=bias,
+    )
     B, L, C = 1, 100, 4
     input_size = (10, 10)
     x = torch.rand(B, L, C)
@@ -367,7 +363,7 @@ def test_patch_merging():
     assert x_out.size(1) == out_size[0] * out_size[1]
 
     # Test with adaptive padding
-    for padding in ('same', 'corner'):
+    for padding in ("same", "corner"):
         in_c = 2
         out_c = 3
         B = 2
@@ -388,7 +384,8 @@ def test_patch_merging():
             stride=stride,
             padding=padding,
             dilation=dilation,
-            bias=bias)
+            bias=bias,
+        )
 
         x_out, out_size = patch_merge(x, input_size)
         assert x_out.size() == (B, 25, 3)
@@ -411,7 +408,8 @@ def test_patch_merging():
             stride=stride,
             padding=padding,
             dilation=dilation,
-            bias=bias)
+            bias=bias,
+        )
 
         x_out, out_size = patch_merge(x, input_size)
         assert x_out.size() == (B, 1, 3)
@@ -434,7 +432,8 @@ def test_patch_merging():
             stride=stride,
             padding=padding,
             dilation=dilation,
-            bias=bias)
+            bias=bias,
+        )
 
         x_out, out_size = patch_merge(x, input_size)
         assert x_out.size() == (B, 2, 3)
@@ -457,7 +456,8 @@ def test_patch_merging():
             stride=stride,
             padding=padding,
             dilation=dilation,
-            bias=bias)
+            bias=bias,
+        )
 
         x_out, out_size = patch_merge(x, input_size)
         assert x_out.size() == (B, 3, 3)
@@ -471,22 +471,23 @@ def test_detr_transformer_dencoder_encoder_layer():
             return_intermediate=True,
             num_layers=6,
             transformerlayers=dict(
-                type='DetrTransformerDecoderLayer',
+                type="DetrTransformerDecoderLayer",
                 attn_cfgs=dict(
-                    type='MultiheadAttention',
-                    embed_dims=256,
-                    num_heads=8,
-                    dropout=0.1),
+                    type="MultiheadAttention", embed_dims=256, num_heads=8, dropout=0.1
+                ),
                 feedforward_channels=2048,
                 ffn_dropout=0.1,
                 operation_order=(
-                    'norm',
-                    'self_attn',
-                    'norm',
-                    'cross_attn',
-                    'norm',
-                    'ffn',
-                ))))
+                    "norm",
+                    "self_attn",
+                    "norm",
+                    "cross_attn",
+                    "norm",
+                    "ffn",
+                ),
+            ),
+        )
+    )
     assert DetrTransformerDecoder(**config).layers[0].pre_norm
     assert len(DetrTransformerDecoder(**config).layers) == 6
 
@@ -498,33 +499,52 @@ def test_detr_transformer_dencoder_encoder_layer():
                 num_layers=6,
                 transformerlayers=[
                     dict(
-                        type='DetrTransformerDecoderLayer',
+                        type="DetrTransformerDecoderLayer",
                         attn_cfgs=dict(
-                            type='MultiheadAttention',
+                            type="MultiheadAttention",
                             embed_dims=256,
                             num_heads=8,
-                            dropout=0.1),
+                            dropout=0.1,
+                        ),
                         feedforward_channels=2048,
                         ffn_dropout=0.1,
-                        operation_order=('self_attn', 'norm', 'cross_attn',
-                                         'norm', 'ffn', 'norm'))
-                ] * 5))
+                        operation_order=(
+                            "self_attn",
+                            "norm",
+                            "cross_attn",
+                            "norm",
+                            "ffn",
+                            "norm",
+                        ),
+                    )
+                ]
+                * 5,
+            )
+        )
         DetrTransformerDecoder(**config)
 
     config = ConfigDict(
         dict(
             num_layers=6,
             transformerlayers=dict(
-                type='DetrTransformerDecoderLayer',
+                type="DetrTransformerDecoderLayer",
                 attn_cfgs=dict(
-                    type='MultiheadAttention',
-                    embed_dims=256,
-                    num_heads=8,
-                    dropout=0.1),
+                    type="MultiheadAttention", embed_dims=256, num_heads=8, dropout=0.1
+                ),
                 feedforward_channels=2048,
                 ffn_dropout=0.1,
-                operation_order=('norm', 'self_attn', 'norm', 'cross_attn',
-                                 'norm', 'ffn', 'norm'))))
+                operation_order=(
+                    "norm",
+                    "self_attn",
+                    "norm",
+                    "cross_attn",
+                    "norm",
+                    "ffn",
+                    "norm",
+                ),
+            ),
+        )
+    )
 
     with pytest.raises(AssertionError):
         # len(operation_order) == 6
@@ -535,35 +555,48 @@ def test_transformer():
     config = ConfigDict(
         dict(
             encoder=dict(
-                type='DetrTransformerEncoder',
+                type="DetrTransformerEncoder",
                 num_layers=6,
                 transformerlayers=dict(
-                    type='BaseTransformerLayer',
+                    type="BaseTransformerLayer",
                     attn_cfgs=[
                         dict(
-                            type='MultiheadAttention',
+                            type="MultiheadAttention",
                             embed_dims=256,
                             num_heads=8,
-                            dropout=0.1)
+                            dropout=0.1,
+                        )
                     ],
                     feedforward_channels=2048,
                     ffn_dropout=0.1,
-                    operation_order=('self_attn', 'norm', 'ffn', 'norm'))),
+                    operation_order=("self_attn", "norm", "ffn", "norm"),
+                ),
+            ),
             decoder=dict(
-                type='DetrTransformerDecoder',
+                type="DetrTransformerDecoder",
                 return_intermediate=True,
                 num_layers=6,
                 transformerlayers=dict(
-                    type='DetrTransformerDecoderLayer',
+                    type="DetrTransformerDecoderLayer",
                     attn_cfgs=dict(
-                        type='MultiheadAttention',
+                        type="MultiheadAttention",
                         embed_dims=256,
                         num_heads=8,
-                        dropout=0.1),
+                        dropout=0.1,
+                    ),
                     feedforward_channels=2048,
                     ffn_dropout=0.1,
-                    operation_order=('self_attn', 'norm', 'cross_attn', 'norm',
-                                     'ffn', 'norm')),
-            )))
+                    operation_order=(
+                        "self_attn",
+                        "norm",
+                        "cross_attn",
+                        "norm",
+                        "ffn",
+                        "norm",
+                    ),
+                ),
+            ),
+        )
+    )
     transformer = Transformer(**config)
     transformer.init_weights()
