@@ -2,16 +2,16 @@ _base_ = [
     "../_base_/models/cascade_rcnn_convnext.py",
     "../_base_/datasets/coco_detection.py",
     "../_base_/schedules/schedule_2x_adam.py",
-    "../_base_/default_runtime.py"
+    "../_base_/default_runtime.py",
 ]
 
-load_from='https://dl.fbaipublicfiles.com/convnext/coco/cascade_mask_rcnn_convnext_xlarge_22k_3x.pth'
+load_from = "https://dl.fbaipublicfiles.com/convnext/coco/cascade_mask_rcnn_convnext_xlarge_22k_3x.pth"
 
 model = dict(
     backbone=dict(
         in_chans=3,
-        depths=[3, 3, 27, 3], 
-        dims=[256, 512, 1024, 2048], 
+        depths=[3, 3, 27, 3],
+        dims=[256, 512, 1024, 2048],
         drop_path_rate=0.8,
         layer_scale_init_value=1.0,
         out_indices=[0, 1, 2, 3],
@@ -20,7 +20,7 @@ model = dict(
     roi_head=dict(
         bbox_head=[
             dict(
-                type='ConvFCBBoxHead',
+                type="ConvFCBBoxHead",
                 num_shared_convs=4,
                 num_shared_fcs=1,
                 in_channels=256,
@@ -29,17 +29,20 @@ model = dict(
                 roi_feat_size=7,
                 num_classes=10,
                 bbox_coder=dict(
-                    type='DeltaXYWHBBoxCoder',
-                    target_means=[0., 0., 0., 0.],
-                    target_stds=[0.1, 0.1, 0.2, 0.2]),
+                    type="DeltaXYWHBBoxCoder",
+                    target_means=[0.0, 0.0, 0.0, 0.0],
+                    target_stds=[0.1, 0.1, 0.2, 0.2],
+                ),
                 reg_class_agnostic=False,
                 reg_decoded_bbox=True,
-                norm_cfg=dict(type='BN', requires_grad=True),
+                norm_cfg=dict(type="BN", requires_grad=True),
                 loss_cls=dict(
-                    type='CrossEntropyLoss', use_sigmoid=False, loss_weight=1.0),
-                loss_bbox=dict(type='GIoULoss', loss_weight=10.0)),
+                    type="CrossEntropyLoss", use_sigmoid=False, loss_weight=1.0
+                ),
+                loss_bbox=dict(type="GIoULoss", loss_weight=10.0),
+            ),
             dict(
-                type='ConvFCBBoxHead',
+                type="ConvFCBBoxHead",
                 num_shared_convs=4,
                 num_shared_fcs=1,
                 in_channels=256,
@@ -48,17 +51,20 @@ model = dict(
                 roi_feat_size=7,
                 num_classes=10,
                 bbox_coder=dict(
-                    type='DeltaXYWHBBoxCoder',
-                    target_means=[0., 0., 0., 0.],
-                    target_stds=[0.05, 0.05, 0.1, 0.1]),
+                    type="DeltaXYWHBBoxCoder",
+                    target_means=[0.0, 0.0, 0.0, 0.0],
+                    target_stds=[0.05, 0.05, 0.1, 0.1],
+                ),
                 reg_class_agnostic=False,
                 reg_decoded_bbox=True,
-                norm_cfg=dict(type='BN', requires_grad=True),
+                norm_cfg=dict(type="BN", requires_grad=True),
                 loss_cls=dict(
-                    type='CrossEntropyLoss', use_sigmoid=False, loss_weight=1.0),
-                loss_bbox=dict(type='GIoULoss', loss_weight=10.0)),
+                    type="CrossEntropyLoss", use_sigmoid=False, loss_weight=1.0
+                ),
+                loss_bbox=dict(type="GIoULoss", loss_weight=10.0),
+            ),
             dict(
-                type='ConvFCBBoxHead',
+                type="ConvFCBBoxHead",
                 num_shared_convs=4,
                 num_shared_fcs=1,
                 in_channels=256,
@@ -67,13 +73,18 @@ model = dict(
                 roi_feat_size=7,
                 num_classes=10,
                 bbox_coder=dict(
-                    type='DeltaXYWHBBoxCoder',
-                    target_means=[0., 0., 0., 0.],
-                    target_stds=[0.033, 0.033, 0.067, 0.067]),
+                    type="DeltaXYWHBBoxCoder",
+                    target_means=[0.0, 0.0, 0.0, 0.0],
+                    target_stds=[0.033, 0.033, 0.067, 0.067],
+                ),
                 reg_class_agnostic=False,
                 reg_decoded_bbox=True,
-                norm_cfg=dict(type='BN', requires_grad=True),
+                norm_cfg=dict(type="BN", requires_grad=True),
                 loss_cls=dict(
-                    type='CrossEntropyLoss', use_sigmoid=False, loss_weight=1.0),
-                loss_bbox=dict(type='GIoULoss', loss_weight=10.0))
-        ]))
+                    type="CrossEntropyLoss", use_sigmoid=False, loss_weight=1.0
+                ),
+                loss_bbox=dict(type="GIoULoss", loss_weight=10.0),
+            ),
+        ]
+    ),
+)
