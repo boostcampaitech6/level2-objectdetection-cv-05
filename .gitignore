@@ -121,6 +121,9 @@ dataset/
 checkpoints/
 submit/
 !live/dataset
+mmdetection/log/
+!mmdetection/configs/_base_/datasets/
+!mmdetection/mmdet/datasets/
 
 # editor, os cache directory
 .vscode/
