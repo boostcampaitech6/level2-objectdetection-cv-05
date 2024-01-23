@@ -20,6 +20,7 @@ CLASSES = (
     "Clothing",
 )
 
+
 def train(args):
     NAME = args.name
     config_path = args.config
@@ -94,35 +95,39 @@ def train(args):
 
 if __name__ == "__main__":
     # ----- Parser -----
-    parser = argparse.ArgumentParser(description='Script to train mmdetection detector.')
-    parser.add_argument(
-        "-n", "--name", 
-        type=str, 
-        default="convnextlarge", help="experiment name"
+    parser = argparse.ArgumentParser(
+        description="Script to train mmdetection detector."
     )
     parser.add_argument(
-        "-c", "--config", 
-        type=str, 
-        default="/data/ephemeral/home/level2-objectdetection-cv-05/mmdetection/configs/convnext/cascade_rcnn_convnext_xlarge_patch4_window7_mstrain_480-800_giou_4conv1f_adamw_2x_trash_aug.py", 
-        help="path to config.py"
+        "-n", "--name", type=str, default="convnextlarge", help="experiment name"
     )
     parser.add_argument(
-        "-r", "--root",
+        "-c",
+        "--config",
+        type=str,
+        default="/data/ephemeral/home/level2-objectdetection-cv-05/mmdetection/configs/convnext/cascade_rcnn_convnext_xlarge_patch4_window7_mstrain_480-800_giou_4conv1f_adamw_2x_trash_aug.py",
+        help="path to config.py",
+    )
+    parser.add_argument(
+        "-r",
+        "--root",
         type=str,
         default="/data/ephemeral/home/level2-objectdetection-cv-05/dataset",
-        help="path to dataset folder"
+        help="path to dataset folder",
     )
     parser.add_argument(
-        "-t", "--train_annotation",
+        "-t",
+        "--train_annotation",
         type=str,
         default="json_folder/StratifiedGroupKFold/train_fold_1.json",
-        help="path to train.json"
+        help="path to train.json",
     )
     parser.add_argument(
-        "-v", "--valid_annotation",
+        "-v",
+        "--valid_annotation",
         type=str,
         default="json_folder/StratifiedGroupKFold/val_fold_1.json",
-        help="path to valid.json"
+        help="path to valid.json",
     )
 
     args = parser.parse_args()
