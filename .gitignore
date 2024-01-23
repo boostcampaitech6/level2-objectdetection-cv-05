@@ -133,8 +133,10 @@ __MACOSX/
 # Folders
 code/
 data/
+dataset/
 cmj/
 wandb/
+artifacts/
 results/
 
 # Docs
