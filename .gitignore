@@ -24,6 +24,11 @@ wheels/
 *.egg-info/
 .installed.cfg
 *.egg
+gpu_pool/dump.rdb
+gpu_pool/nohup.out
+
+*.pth
+work_dirs
 
 # PyInstaller
 #  Usually these files are written by a python script from a template
@@ -104,20 +109,24 @@ ENV/
 data/
 input/
 saved/
-datasets/
-v3/train.sh
-v3/wandb
+model/pretrained
+mmdetection/artifacts
+
+# scripts
 sweep.yaml
 sweep.out
 train.sh
 inference.sh
 inference_train.sh
+mmdetection/faster_rcnn_inference.ipynb
+tools/ensemble.sh
 model/pretrained/
 model/checkpoint_transform.py
 k_fold_train_mj.py
 dataset/
 checkpoints/
 submit/
+!live/dataset
 
 # editor, os cache directory
 .vscode/
@@ -133,8 +142,10 @@ __MACOSX/
 # Folders
 code/
 data/
+dataset/
 cmj/
 wandb/
+artifacts/
 results/
 
 # Docs

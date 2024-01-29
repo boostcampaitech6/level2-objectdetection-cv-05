@@ -17,6 +17,10 @@ def write_json(content, fname):
         json.dump(content, handle, indent=4, sort_keys=False)
 
 
+def read_dict(cfg: str):
+    return json.loads(cfg, object_hook=OrderedDict)
+
+
 def prepare_device(n_gpu_use):
     """GPU 사용이 가능하면 셋팅하는 메서드. DataParallel에 사용할 gpu 번호를 받는다.
 
