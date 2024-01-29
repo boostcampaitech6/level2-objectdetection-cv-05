@@ -732,7 +732,26 @@ class CocoDataset(CustomDataset):
                     f"{ap[0]:.3f} {ap[1]:.3f} {ap[2]:.3f} {ap[3]:.3f} "
                     f"{ap[4]:.3f} {ap[5]:.3f}"
                 )
-
+        
+        wandb.alert(
+            title = "title", 
+            text = """
+            bbox_mAP = %s \n
+            bbox_mAP_50 = %s \n
+            bbox_mAP_75 = %s \n
+            bbox_mAP_s = %s \n
+            bbox_mAP_m = %s \n
+            bbox_mAP_l = %s \n
+            """ % (
+                str(eval_results["bbox_mAP"]),
+                str(eval_results["bbox_mAP_50"]),
+                str(eval_results["bbox_mAP_75"]),
+                str(eval_results["bbox_mAP_s"]),
+                str(eval_results["bbox_mAP_m"]),
+                str(eval_results["bbox_mAP_l"]),
+                )
+            )
+        
         return eval_results
 
     def evaluate(
