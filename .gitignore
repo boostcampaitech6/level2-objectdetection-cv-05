@@ -24,6 +24,8 @@ wheels/
 *.egg-info/
 .installed.cfg
 *.egg
+gpu_pool/dump.rdb
+gpu_pool/nohup.out
 
 *.pth
 work_dirs
@@ -118,6 +120,13 @@ inference.sh
 inference_train.sh
 mmdetection/faster_rcnn_inference.ipynb
 tools/ensemble.sh
+model/pretrained/
+model/checkpoint_transform.py
+k_fold_train_mj.py
+dataset/
+checkpoints/
+submit/
+!live/dataset
 
 # editor, os cache directory
 .vscode/
