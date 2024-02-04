@@ -114,13 +114,9 @@ pip install -r requirements.txt
 - 관찰 기록을 토대로 데이터의 일관성에서 어긋나는 데이터는 삭제할 수 있는 규칙을 정했다. 개인이 애매하다고 판단하는 데이터의 경우에는 우선 기록을 하고 추후 처리 방식을 의논하였다.
 <br/>
 
-> ### Model
-추후에
-<br/>
-
 > ### Training
 ```bash
-python train.py -c config.json
+python live/train.py -c config.json
 ```
 <br/>
 
